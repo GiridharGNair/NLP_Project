@@ -122,7 +122,7 @@ if __name__ == "__main__":
 	prediction = predictor(cond_model)
 	verifier(prediction)
 
-	#cond_model_pickled = pickle.dumps(cond_model)
-	#cond_model_fname = input("Enter filename to save model : ")
-	#c_obj = open(cond_model_fname, "w")
-	#c_obj.write(str(cond_model_pickled))
+	cond_model_pickled = pickle.dumps(cond_model)
+	cond_model_fname = input("Enter filename to save model : ")
+	c_obj = open(cond_model_fname, "w")
+	c_obj.write(str(cond_model_pickled))
