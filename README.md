@@ -6,6 +6,7 @@ Team Members :
  - Giridhar G Nair
 
 Part A (Re-run)
+
 Set - wise accuracy:
  - 0.6285714285714286
  - 0.7857142857142857
@@ -22,6 +23,7 @@ Average : 0.73451345755694
 
 
 Part B
+
 Set - wise accuracy:
  - 0.8
  - 0.7714285714285715
