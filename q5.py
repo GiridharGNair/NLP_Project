@@ -14,8 +14,8 @@ def prob_calc(content, dictionary):
 			total_pos = total_pos + 1
 		elif "neg" in words:
 			total_neg = total_neg + 1
-	print("Total no of +ves : " + str(total_pos))
-	print("Total no of -ves : " + str(total_neg))
+	# print("Total no of +ves : " + str(total_pos))
+	# print("Total no of -ves : " + str(total_neg))
 
 	vocabs = dictionary.splitlines()
 	model = {}
@@ -43,8 +43,8 @@ def word_class_counter(content):
 			pos = pos + len(words) - 1
 		elif "neg" in words:
 			neg = neg + len(words) - 1
-	print("No of words in +ve reviews : " + str(pos))
-	print("No of words in -ve reviews : " + str(neg))
+	# print("No of words in +ve reviews : " + str(pos))
+	# print("No of words in -ve reviews : " + str(neg))
 	return {"pos" : pos, "neg" : neg}
 
 def smoother(model_and_total, pos_and_neg, content, vocabulary):
@@ -117,12 +117,15 @@ if __name__ == "__main__":
 	pos_and_neg = word_class_counter(content)
 	#print(model_and_total)
 	#print(pos_and_neg)
-	smooth_result = smoother(model_and_total, pos_and_neg, content, dictionary)
-	cond_model = cond_prob(model_and_total, pos_and_neg, content, smooth_result)
+	new_fname = input("Enter name of test file : ")
+	new_fd = open(new_fname, "r")
+	new_contents = new_fd.read()
+	smooth_result = smoother(model_and_total, pos_and_neg, new_contents, dictionary)
+	cond_model = cond_prob(model_and_total, pos_and_neg, new_contents, smooth_result)
 	prediction = predictor(cond_model)
 	verifier(prediction)
 
-	cond_model_pickled = pickle.dumps(cond_model)
-	cond_model_fname = input("Enter filename to save model : ")
-	c_obj = open(cond_model_fname, "w")
-	c_obj.write(str(cond_model_pickled))
+	# cond_model_pickled = pickle.dumps(cond_model)
+	# cond_model_fname = input("Enter filename to save model : ")
+	# c_obj = open(cond_model_fname, "w")
+	# c_obj.write(str(cond_model_pickled))
