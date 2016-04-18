@@ -1,5 +1,3 @@
-#line 84 deleting duplicate unigrams
-
 import pickle
 
 def unigram_vocab_gen(processed_data):
@@ -32,17 +30,19 @@ def unigram_stats_gen(processed_data, unigram_vocab):
 		for word in words:
 			if word in unigram_vocab:
 				if words[0] == "pos":
-					if word not in unigram_stats:
-						unigram_stats[word] = {"pos" : 1, "neg" : 0}
-						unigram_total_pos += 1
-					else:
-						unigram_stats[word]["pos"] += 1
+					if word != "pos" and word != "neg":
+						if word not in unigram_stats:
+							unigram_stats[word] = {"pos" : 1, "neg" : 0}
+							unigram_total_pos += 1
+						else:
+							unigram_stats[word]["pos"] += 1
 				if words[0] == "neg":
-					if word not in unigram_stats:
-						unigram_stats[word] = {"pos" : 0, "neg" : 1}
-						unigram_total_neg += 1
-					else:
-						unigram_stats[word]["neg"] += 1
+					if word != "pos" and word != "neg":
+						if word not in unigram_stats:
+							unigram_stats[word] = {"pos" : 0, "neg" : 1}
+							unigram_total_neg += 1
+						else:
+							unigram_stats[word]["neg"] += 1
 	return unigram_stats, unigram_total_pos, unigram_total_neg
 
 
@@ -66,7 +66,7 @@ def bigram_vocab_gen(processed_data):
 	return bigram_vocab, bigram_count
 
 
-def bigram_stats_gen(processed_data, bigram_vocab, unigram_stats):
+def bigram_stats_gen(processed_data, bigram_vocab, unigram_stats, unigram_total_pos, unigram_total_neg):
 	bigram_stats = {}
 	bigram_total_pos = 0
 	bigram_total_neg = 0
@@ -79,13 +79,31 @@ def bigram_stats_gen(processed_data, bigram_vocab, unigram_stats):
 				if words[0] == "pos":
 					if bigram not in bigram_stats:
 						bigram_stats[bigram] = {"pos" : 1, "neg" : 0}
+						bigram_total_pos += 1
 					else:
 						bigram_stats[bigram]["pos"] += 1
 					if i == 1:
-						j = 1
-					else:
-						j = i + 1
-					if words[j] 
+						if words[i] in unigram_stats:
+							unigram_stats[words[i]]["pos"] -= 1
+							unigram_total_pos -= 1
+					if words[i + 1] in unigram_stats:
+						unigram_stats[words[i + 1]]["pos"] -= 1
+						unigram_total_pos -= 1
+				elif words[0] == "neg":
+						if bigram not in bigram_stats:
+							bigram_stats[bigram] = {"pos" : 0, "neg" : 1}
+							bigram_total_neg += 1
+						else:
+							bigram_stats[bigram]["neg"] += 1
+						if i == 1:
+							if words[i] in unigram_stats:
+								unigram_stats[words[i]]["neg"] -= 1
+								unigram_total_neg -= 1
+						if words[i + 1] in unigram_stats:
+							unigram_stats[words[i + 1]]["neg"] -= 1
+							unigram_total_neg -= 1
+	return bigram_stats, bigram_total_pos, bigram_total_neg, unigram_stats, unigram_total_pos, unigram_total_neg
+
 
 
 
@@ -105,4 +123,10 @@ if __name__ == "__main__":
 	bigram_vocab, bigram_count = bigram_vocab_gen(processed_data)
 	print(bigram_vocab)
 	print(bigram_count)
-	bigram_stats, unigram_stats, unigram_total_pos, unigram_total_neg = bigram_stats_gen(processed_data, bigram_vocab, unigram_stats, unigram_total_pos, unigram_total_neg)
+	bigram_stats, bigram_total_pos, bigram_total_neg, unigram_stats, unigram_total_pos, unigram_total_neg = bigram_stats_gen(processed_data, bigram_vocab, unigram_stats, unigram_total_pos, unigram_total_neg)
+	print(bigram_stats)
+	print(unigram_stats)
+	print(bigram_total_pos)
+	print(bigram_count)
+	print(unigram_total_pos)
+	print(unigram_total_neg)
