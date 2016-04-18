@@ -1,4 +1,5 @@
 import pickle
+import math
 
 def unigram_vocab_gen(processed_data):
 	unigram_initial_list = {}
@@ -105,6 +106,41 @@ def bigram_stats_gen(processed_data, bigram_vocab, unigram_stats, unigram_total_
 	return bigram_stats, bigram_total_pos, bigram_total_neg, unigram_stats, unigram_total_pos, unigram_total_neg
 
 
+def predictor(test_contents, bigram_stats, bigram_total_pos, bigram_total_neg, unigram_stats, unigram_total_pos, unigram_total_neg, bigram_vocab, unigram_vocab, unigram_count):
+	lines = test_contents.splitlines()
+	line_probs = {}
+	predictions = {}
+	correct = 0
+	total = 0
+	for line in lines:
+		words = line.split()
+		line_prob_pos = 1
+		line_prob_neg = 1
+		for i in range(0, len(words) - 1):
+			temp_bigram = words[i] + " " + words[i + 1]
+			if temp_bigram in bigram_vocab:
+				line_prob_pos = line_prob_pos * (bigram_stats[temp_bigram]["pos"] / bigram_total_pos)
+				line_prob_neg = line_prob_neg * (bigram_stats[temp_bigram]["neg"] / bigram_total_neg)
+				i += 1
+			elif words[i] in unigram_vocab:
+				line_prob_pos = line_prob_pos * ((unigram_stats[words[i]]["pos"] + 1) / (unigram_total_pos + unigram_count))
+				line_prob_neg = line_prob_neg * ((unigram_stats[words[i]]["neg"] + 1)/ (unigram_total_neg + unigram_count))
+			else:
+				line_prob_pos = line_prob_pos * (1/unigram_count)
+				line_prob_neg = line_prob_neg * (1/unigram_count)
+		line_probs[line] = {"pos" : line_prob_pos, "neg" : line_prob_neg}
+	for line in line_probs:
+		if line_probs[line]["pos"] > line_probs[line]["neg"]:
+			predictions[line] = "pos"
+		else:
+			predictions[line] = "neg"
+	# print(predictions)
+	for line in lines:
+		words = line.split()
+		if words[0] == predictions[line]:
+			correct += 1
+		total += 1
+	return correct/total
 
 
 if __name__ == "__main__":
@@ -114,19 +150,26 @@ if __name__ == "__main__":
 	fd.close()
 	unigram_vocab, unigram_count = unigram_vocab_gen(processed_data)
 	unigram_stats, unigram_total_pos, unigram_total_neg = unigram_stats_gen(processed_data, unigram_vocab)
-	print(unigram_vocab)
-	print(unigram_count)
-	print(unigram_stats)
-	print(unigram_total_pos)
-	print(unigram_total_neg)
+	# print(unigram_vocab)
+	# print(unigram_count)
+	# print(unigram_stats)
+	# print(unigram_total_pos)
+	# print(unigram_total_neg)
 	unigram_model = pickle.dumps({"vocab" : unigram_vocab, "count" : unigram_count, "total_pos" : unigram_total_pos, "total_neg" : unigram_total_neg})
 	bigram_vocab, bigram_count = bigram_vocab_gen(processed_data)
-	print(bigram_vocab)
-	print(bigram_count)
+	# print(bigram_vocab)
+	# print(bigram_count)
 	bigram_stats, bigram_total_pos, bigram_total_neg, unigram_stats, unigram_total_pos, unigram_total_neg = bigram_stats_gen(processed_data, bigram_vocab, unigram_stats, unigram_total_pos, unigram_total_neg)
-	print(bigram_stats)
-	print(unigram_stats)
-	print(bigram_total_pos)
-	print(bigram_count)
-	print(unigram_total_pos)
-	print(unigram_total_neg)
+	# print(bigram_stats)
+	# print(unigram_stats)
+	# print(bigram_total_pos)
+	# print(bigram_count)
+	# print(unigram_total_pos)
+	# print(unigram_total_neg)
+	total_vocab_size = bigram_count + unigram_count
+	# print(total_vocab_size)
+	sec_fname = input("Enter name of test set : ")
+	sec_fd = open(sec_fname, "r")
+	test_contents = sec_fd.read()
+	accuracy = predictor(test_contents, bigram_stats, bigram_total_pos, bigram_total_neg, unigram_stats, unigram_total_pos, unigram_total_neg, bigram_vocab, unigram_vocab, unigram_count)
+	print(accuracy)
